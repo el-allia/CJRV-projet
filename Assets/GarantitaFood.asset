@@ -12,10 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 59f4353b21311e740b4b79421f667152, type: 3}
   m_Name: GarantitaFood
   m_EditorClassIdentifier: Assembly-CSharp::FoodData
-  foodType: 0
-  foodName: 
-  cookingTime: 10
-  burnDelay: 5
+  foodType: 1
+  foodName: Garantita
+  cookingTime: 4
+  burnDelay: 3
   perfectScore: 50
   goodScore: 30
   lateScore: 10
