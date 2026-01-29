@@ -239,12 +239,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: -10}
+  m_LocalRotation: {x: -0.28714025, y: -0.10075057, z: 0.9196938, w: 0.24811922}
+  m_LocalPosition: {x: 0, y: 1.6, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 807407304}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &330585547
 MonoBehaviour:
@@ -365,7 +365,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f299818fdad99dd42add39bb9902f0f6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::StationController
-  foodData: {fileID: 0}
+  foodData: {fileID: 11400000, guid: abc9750f4fd98904792687b577c78e70, type: 2}
   currentState: 1
   cookTimer: 3
   readyTimer: 3
@@ -642,6 +642,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 807407304}
+  - component: {fileID: 807407305}
+  - component: {fileID: 807407307}
+  - component: {fileID: 807407306}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -657,13 +660,81 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 807407303}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: -0.000002548564, y: 0.02222575, z: -0.96347606, w: 0.26687047}
+  m_LocalPosition: {x: 0, y: 1.6, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 330585546}
   m_Father: {fileID: 358326288}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 2.455, y: 0.681, z: -149.021}
+--- !u!114 &807407305
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 807407303}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b25ff49b2e58df546afc397c1b2b49d9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerInteraction
+  rayDistance: 3
+  stationLayer:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  customerLayer:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  customerDetectionRadius: 2.1967986
+  currentStation: {fileID: 1551023618}
+  heldFood: {fileID: 11400000, guid: a0945ce65011ee447906d72084e2e8d8, type: 2}
+  interactKey: 101
+  serveKey: 102
+  resetKey: 114
+  showDebugInfo: 1
+  heldFoodTransform: {fileID: 0}
+--- !u!114 &807407306
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 807407303}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 22879957f9ce06b4f8bcd820cd2fc7e1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerController
+  speed: 8
+  mouseSensitivity: 4
+  cameraHolder: {fileID: 330585546}
+--- !u!143 &807407307
+CharacterController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 807407303}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Height: 2
+  m_Radius: 0.5
+  m_SlopeLimit: 45
+  m_StepOffset: 0.3
+  m_SkinWidth: 0.08
+  m_MinMoveDistance: 0.001
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &832575517
 GameObject:
   m_ObjectHideFlags: 0
@@ -788,7 +859,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f299818fdad99dd42add39bb9902f0f6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::StationController
-  foodData: {fileID: 0}
+  foodData: {fileID: 11400000, guid: a0945ce65011ee447906d72084e2e8d8, type: 2}
   currentState: 0
   cookTimer: 0
   readyTimer: 0
@@ -1061,7 +1132,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f299818fdad99dd42add39bb9902f0f6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::StationController
-  foodData: {fileID: 0}
+  foodData: {fileID: 11400000, guid: 480a71ccb11a0804ca833811be8ba0fe, type: 2}
   currentState: 0
   cookTimer: 0
   readyTimer: 0
@@ -1130,7 +1201,6 @@ PrefabInstance:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
-  - {fileID: 330585546}
   - {fileID: 410087041}
   - {fileID: 832575519}
   - {fileID: 3266545447412860399}
