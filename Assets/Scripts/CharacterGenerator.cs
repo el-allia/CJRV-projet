@@ -20,10 +20,7 @@ public class CharacterGenerator : MonoBehaviour
     public Transform torsoSlot;
     public Transform legsSlot;
 
-    private GameObject chosenHead;
-    private GameObject chosenHair;
-    private GameObject chosenTorso;
-    private GameObject chosenLegs;
+    private GameObject chosenHead, chosenHair, chosenTorso, chosenLegs;
 
     public enum Gender { Male, Female }
     private Gender characterGender;
@@ -36,13 +33,27 @@ public class CharacterGenerator : MonoBehaviour
         if (chosenLegs)  Destroy(chosenLegs);
     }
 
+    [ContextMenu("Spawn Random Character")]
     public void SpawnRandomCharacter()
     {
+        // safety: don’t try to spawn if arrays are empty
+        bool maleReady = headMale.Length > 0 && hairMale.Length > 0 && torsoMale.Length > 0 && legsMale.Length > 0;
+        bool femaleReady = headFemale.Length > 0 && hairFemale.Length > 0 && torsoFemale.Length > 0 && legsFemale.Length > 0;
+
+        if (!maleReady && !femaleReady)
+        {
+            Debug.LogWarning("Assign your prefabs to the arrays in the Inspector first.");
+            return;
+        }
+
         ClearSlots();
 
-        int a = Random.Range(0, 2); // 0 = Male, 1 = Female
+        // pick gender that actually has data
+        int coin = Random.Range(0, 2); // 0 or 1
+        if ((!maleReady && coin == 0) || (!femaleReady && coin == 1))
+            coin = maleReady ? 0 : 1;
 
-        if (a == 0)
+        if (coin == 0)
         {
             characterGender = Gender.Male;
             SpawnMaleCharacter();
@@ -58,27 +69,37 @@ public class CharacterGenerator : MonoBehaviour
 
     private void SpawnMaleCharacter()
     {
-        int h = Random.Range(0, headMale.Length);
-        int hr = Random.Range(0, hairMale.Length);
-        int t = Random.Range(0, torsoMale.Length);
-        int l = Random.Range(0, legsMale.Length);
-
-        chosenHead  = Instantiate(headMale[h],  headSlot);
-        chosenHair  = Instantiate(hairMale[hr], hairSlot);
-        chosenTorso = Instantiate(torsoMale[t], torsoSlot);
-        chosenLegs  = Instantiate(legsMale[l],  legsSlot);
+        chosenHead  = Instantiate(headMale[Random.Range(0, headMale.Length)],   headSlot);
+        chosenHair  = Instantiate(hairMale[Random.Range(0, hairMale.Length)],   hairSlot);
+        chosenTorso = Instantiate(torsoMale[Random.Range(0, torsoMale.Length)], torsoSlot);
+        chosenLegs  = Instantiate(legsMale[Random.Range(0, legsMale.Length)],   legsSlot);
+        ResetLocal(chosenHead, chosenHair, chosenTorso, chosenLegs);
     }
 
     private void SpawnFemaleCharacter()
     {
-        int h = Random.Range(0, headFemale.Length);
-        int hr = Random.Range(0, hairFemale.Length);
-        int t = Random.Range(0, torsoFemale.Length);
-        int l = Random.Range(0, legsFemale.Length);
+        chosenHead  = Instantiate(headFemale[Random.Range(0, headFemale.Length)],   headSlot);
+        chosenHair  = Instantiate(hairFemale[Random.Range(0, hairFemale.Length)],   hairSlot);
+        chosenTorso = Instantiate(torsoFemale[Random.Range(0, torsoFemale.Length)], torsoSlot);
+        chosenLegs  = Instantiate(legsFemale[Random.Range(0, legsFemale.Length)],   legsSlot);
+        ResetLocal(chosenHead, chosenHair, chosenTorso, chosenLegs);
+    }
 
-        chosenHead  = Instantiate(headFemale[h],  headSlot);
-        chosenHair  = Instantiate(hairFemale[hr], hairSlot);
-        chosenTorso = Instantiate(torsoFemale[t], torsoSlot);
-        chosenLegs  = Instantiate(legsFemale[l],  legsSlot);
+    private void ResetLocal(params GameObject[] parts)
+    {
+        // ensure each spawned part sits exactly on the slot (no offsets)
+        foreach (var p in parts)
+        {
+            var t = p.transform;
+            t.localPosition = Vector3.zero;
+            t.localRotation = Quaternion.identity;
+            t.localScale    = Vector3.one;
+        }
+    }
+
+    private void Start()
+    {
+        // auto-spawn once on Play. If you want manual only, delete this line.
+        SpawnRandomCharacter();
     }
 }
