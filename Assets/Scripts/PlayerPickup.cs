@@ -26,23 +26,23 @@ public class PlayerPickup : MonoBehaviour
 
     void TryPickup()
     {
-        if (heldObject != null) return;
+        if (heldObject != null)
+            return;
 
         Ray ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
         RaycastHit hit;
 
         if (Physics.Raycast(ray, out hit, pickupDistance))
         {
-            if (hit.collider.CompareTag("Pickup"))
+            Rigidbody rb = hit.collider.GetComponent<Rigidbody>();
+
+            if (rb != null && hit.collider.CompareTag("Pickup"))
             {
-                heldObject = hit.collider.gameObject;
-                heldRb = heldObject.GetComponent<Rigidbody>();
+                heldObject = rb.gameObject;
+                heldRb = rb;
 
                 heldRb.isKinematic = true;
                 heldRb.useGravity = false;
-
-                heldRb.linearVelocity = Vector3.zero;
-                heldRb.angularVelocity = Vector3.zero;
 
                 heldObject.transform.SetParent(holdPoint);
                 heldObject.transform.localPosition = Vector3.zero;
@@ -50,17 +50,24 @@ public class PlayerPickup : MonoBehaviour
         }
     }
 
+
     void Drop()
-    {
-        if (heldObject == null) return;
+{
+    if (heldObject == null || heldRb == null)
+        return;
 
-        heldObject.transform.SetParent(null);
-        heldRb.useGravity = true;
+    heldObject.transform.SetParent(null);
 
-        heldObject = null;
-        heldRb = null;
-        heldRb.isKinematic = false;
-        heldRb.useGravity = true;
 
-    }
+    heldRb.isKinematic = false;
+    heldRb.useGravity = true;
+
+
+    heldRb.linearVelocity = Vector3.zero;
+    heldRb.angularVelocity = Vector3.zero;
+
+    heldObject = null;
+    heldRb = null;
+}
+
 }
