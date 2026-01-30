@@ -37,9 +37,14 @@ public class ClientQueueMember : MonoBehaviour
         if (agent.pathPending) return;
 
         if (agent.remainingDistance <= agent.stoppingDistance + destroyDistance)
-        {
-            Destroy(gameObject);
-        }
+{
+    var customer = GetComponent<Customer>();
+    if (customer != null)
+    {
+        Destroy(customer.gameObject);
+    }
+}
+
     }
 
     public void SetQueueDestination(Vector3 p)
