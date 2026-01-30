@@ -1341,6 +1341,37 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 94b363daab4a5544089b0c4906707715, type: 3}
+--- !u!1 &503374421
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 503374422}
+  m_Layer: 0
+  m_Name: ExitTarget
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &503374422
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 503374421}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 57, y: 0, z: 41.8}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &505785912 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: cd5bdf88aa76a144eb6ae83c4ac77488, type: 3}
@@ -3860,6 +3891,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ClientWalkToTruck
   truckTarget: {fileID: 2079005511}
+--- !u!114 &1153289719
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1153289714}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7aaae6cb9b55d6e4a8be10be7dcb9c05, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ClientQueueMember
+  exitTarget: {fileID: 503374422}
+  destroyDistance: 0.25
 --- !u!1 &1158847916
 GameObject:
   m_ObjectHideFlags: 0
@@ -5166,6 +5211,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 2502206019268275481, guid: f6135789b1a9ade49958e861f79afc45, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1153289718}
+    - targetCorrespondingSourceObject: {fileID: 2502206019268275481, guid: f6135789b1a9ade49958e861f79afc45, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1153289719}
   m_SourcePrefab: {fileID: 100100000, guid: f6135789b1a9ade49958e861f79afc45, type: 3}
 --- !u!1 &1434572402
 GameObject:
@@ -7181,6 +7229,54 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.0059999996, y: 0.006199999, z: 0.0079999985}
   m_Center: {x: -0.0029999998, y: -0.0030999845, z: 0.0039999993}
+--- !u!1 &1985550400
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1985550401}
+  - component: {fileID: 1985550402}
+  m_Layer: 0
+  m_Name: TruckQueue
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1985550401
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1985550400}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 49.61465, y: 0, z: 41.8}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1985550402
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1985550400}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 388d925c401cb144bbae724ead95d448, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TruckQueue
+  frontPoint: {fileID: 2079005511}
+  exitPoint: {fileID: 503374422}
+  spacing: 1.2
+  maxCount: 30
 --- !u!1001 &1986423284
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -7748,3 +7844,5 @@ SceneRoots:
   - {fileID: 571439898}
   - {fileID: 2079005511}
   - {fileID: 614829395}
+  - {fileID: 1985550401}
+  - {fileID: 503374422}
