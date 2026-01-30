@@ -1,94 +1,81 @@
 using UnityEngine;
+using UnityEngine.AI;
 using TMPro;
 
 public class Customer : MonoBehaviour
 {
     public enum OrderType { Burger, Garantita, Coffee }
 
-    [Header("Order")]
     public OrderType orderType;
 
-    [Header("Satisfaction")]
-    [Range(0f, 100f)] public float satisfaction = 100f;
+    [Header("Patience")]
     public float maxWaitTime = 30f;
-
-    [SerializeField] private float waitTimer;
+    private float waitTimer;
 
     [Header("UI")]
     public TextMeshProUGUI orderText;
 
     private bool hasLeft = false;
 
-    private Renderer customerRenderer;
-    private MaterialPropertyBlock propertyBlock;
-
+    private NavMeshAgent agent;
+    private ClientQueueMember qm;
+    private TruckQueue queue;
     private CustomerSpawner spawner;
 
-    private void Awake()
+    void Awake()
     {
-        customerRenderer = GetComponentInChildren<Renderer>();
-        if (customerRenderer != null)
-            propertyBlock = new MaterialPropertyBlock();
+        agent = GetComponent<NavMeshAgent>();
+        qm = GetComponent<ClientQueueMember>();
+        queue = FindFirstObjectByType<TruckQueue>();
     }
 
-    private void Start()
+    void Start()
     {
-        int orderCount = System.Enum.GetValues(typeof(OrderType)).Length;
-        orderType = (OrderType)Random.Range(0, orderCount);
-
         waitTimer = maxWaitTime;
-        satisfaction = 100f;
 
-        UpdateColor();
-        UpdateOrderText();
+        int count = System.Enum.GetValues(typeof(OrderType)).Length;
+        orderType = (OrderType)Random.Range(0, count);
+
+        if (orderText != null)
+            orderText.text = orderType.ToString();
     }
 
-    private void Update()
+    void Update()
     {
         if (hasLeft) return;
 
+        // If not the FRONT customer → do not lose patience
+        if (queue != null && qm != null && !queue.IsFront(qm))
+            return;
+
+        // If still walking → do not lose patience
+        if (agent != null)
+        {
+            if (agent.pathPending) return;
+
+            bool moving = agent.remainingDistance > agent.stoppingDistance + 0.05f;
+            if (moving) return;
+        }
+
+        // Now front + standing → patience decreases
         waitTimer -= Time.deltaTime;
-        waitTimer = Mathf.Max(waitTimer, 0f);
 
-        satisfaction = (waitTimer / maxWaitTime) * 100f;
-
-        UpdateColor();
-
-        if (satisfaction <= 0f)
+        if (waitTimer <= 0f)
         {
             LeaveRestaurant();
         }
     }
 
-    private void UpdateColor()
-    {
-        if (customerRenderer == null || propertyBlock == null) return;
-
-        Color targetColor =
-            (satisfaction > 66f) ? Color.green :
-            (satisfaction > 33f) ? Color.yellow :
-            Color.red;
-
-        customerRenderer.GetPropertyBlock(propertyBlock);
-        propertyBlock.SetColor("_Color", targetColor);
-        customerRenderer.SetPropertyBlock(propertyBlock);
-    }
-
-    private void UpdateOrderText()
-    {
-        if (orderText != null)
-            orderText.text = GetOrderText();
-    }
-
-    public bool ReceiveFood(OrderType foodReceived)
+    public bool ReceiveFood(OrderType food)
     {
         if (hasLeft) return false;
 
-        bool correct = (foodReceived == orderType);
-        if (correct)
+        if (food == orderType)
+        {
             LeaveRestaurant();
-
-        return correct;
+            return true;
+        }
+        return false;
     }
 
     private void LeaveRestaurant()
@@ -96,31 +83,17 @@ public class Customer : MonoBehaviour
         if (hasLeft) return;
         hasLeft = true;
 
-        // remove from spawner count
         if (spawner != null)
             spawner.RemoveCustomer(this);
 
-        // walk to exit then destroy
-        ClientQueueMember qm = GetComponent<ClientQueueMember>();
         if (qm != null)
             qm.GoToExit();
         else
             Destroy(gameObject);
     }
 
-    public string GetOrderText()
+    public void SetSpawner(CustomerSpawner s)
     {
-        return orderType switch
-        {
-            OrderType.Burger => "🍔 Burger",
-            OrderType.Garantita => "🥙 Garantita",
-            OrderType.Coffee => "☕ Coffee",
-            _ => ""
-        };
-    }
-
-    public void SetSpawner(CustomerSpawner spawnerRef)
-    {
-        spawner = spawnerRef;
+        spawner = s;
     }
 }

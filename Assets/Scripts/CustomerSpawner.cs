@@ -118,21 +118,16 @@ public class CustomerSpawner : MonoBehaviour
 
     private void SpawnCustomer()
     {
-        GameObject customerObj = Instantiate(customerPrefab, spawnPoint.position, spawnPoint.rotation);
+       GameObject obj = Instantiate(customerPrefab, spawnPoint.position, spawnPoint.rotation);
 
-        Customer customer = customerObj.GetComponent<Customer>();
-        if (customer == null)
-        {
-            Debug.LogError("CustomerSpawner: Spawned prefab has NO Customer component. Destroying it.");
-            Destroy(customerObj);
-            return;
-        }
+Customer c = obj.GetComponent<Customer>();
+if (c != null)
+{
+    c.SetSpawner(this);
+    activeCustomers.Add(c);
+}
 
-        customer.SetSpawner(this);          // IMPORTANT
-        activeCustomers.Add(customer);
 
-        if (showDebugInfo)
-            Debug.Log($"Spawned customer. Active: {activeCustomers.Count}/{maxCustomers}");
     }
 
     private float GetSpawnDelay()

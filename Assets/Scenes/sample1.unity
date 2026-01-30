@@ -4262,19 +4262,6 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
---- !u!114 &1153289718
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1153289714}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fb835758ed1011f409afb091ed2c2649, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ClientWalkToTruck
-  truckTarget: {fileID: 2079005511}
 --- !u!114 &1153289719
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4303,8 +4290,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Customer
   orderType: 0
   satisfaction: 100
-  maxWaitTime: 30
-  waitTimer: 0
+  maxWaitTime: 120
+  waitTimer: 30
   orderText: {fileID: 0}
 --- !u!1 &1158847916
 GameObject:
@@ -4418,7 +4405,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cee4a78118b70ea4292dfdfbd5e5a211, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TimeManager
-  secondsPerPeriod: 30
+  secondsPerPeriod: 5
 --- !u!4 &1187134362
 Transform:
   m_ObjectHideFlags: 0
@@ -5724,9 +5711,6 @@ PrefabInstance:
       addedObject: {fileID: 1153289717}
     - targetCorrespondingSourceObject: {fileID: 2502206019268275481, guid: f6135789b1a9ade49958e861f79afc45, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 1153289718}
-    - targetCorrespondingSourceObject: {fileID: 2502206019268275481, guid: f6135789b1a9ade49958e861f79afc45, type: 3}
-      insertIndex: -1
       addedObject: {fileID: 1153289719}
     - targetCorrespondingSourceObject: {fileID: 2502206019268275481, guid: f6135789b1a9ade49958e861f79afc45, type: 3}
       insertIndex: -1
@@ -6294,10 +6278,11 @@ Transform:
   m_GameObject: {fileID: 1569157241}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 49.61465, y: 0, z: 34.80751}
+  m_LocalPosition: {x: 49.61465, y: 0, z: 32.80751}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 1745924280}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1580183672
@@ -6824,6 +6809,37 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a0ab09d03e070d4409252ac863adb1ec, type: 3}
+--- !u!1 &1745924279
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1745924280}
+  m_Layer: 0
+  m_Name: CustomerSpawnPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1745924280
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1745924279}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1569157242}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1747478969
 PrefabInstance:
   m_ObjectHideFlags: 0

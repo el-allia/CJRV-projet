@@ -6,11 +6,11 @@ public class ClientQueueMember : MonoBehaviour
     private NavMeshAgent agent;
     private TruckQueue queue;
 
-    [Header("Exit")]
     [SerializeField] private Transform exitTarget;
     [SerializeField] private float destroyDistance = 0.25f;
 
     private bool goingToExit = false;
+    public bool IsGoingToExit => goingToExit;
 
     void Awake()
     {
@@ -21,14 +21,14 @@ public class ClientQueueMember : MonoBehaviour
     {
         queue = FindFirstObjectByType<TruckQueue>();
 
-        // Auto-find ExitTarget by name if you didn't assign it in Inspector
         if (exitTarget == null)
         {
             GameObject go = GameObject.Find("ExitTarget");
             if (go != null) exitTarget = go.transform;
         }
 
-        if (queue != null) queue.Join(this);
+        if (queue != null)
+            queue.Join(this);
     }
 
     void Update()
@@ -36,7 +36,6 @@ public class ClientQueueMember : MonoBehaviour
         if (!goingToExit || agent == null || exitTarget == null) return;
         if (agent.pathPending) return;
 
-        // "Arrived" check
         if (agent.remainingDistance <= agent.stoppingDistance + destroyDistance)
         {
             Destroy(gameObject);
@@ -45,22 +44,23 @@ public class ClientQueueMember : MonoBehaviour
 
     public void SetQueueDestination(Vector3 p)
     {
-        if (agent != null) agent.SetDestination(p);
+        if (!goingToExit && agent != null)
+            agent.SetDestination(p);
     }
 
-public void GoToExit()
-{
-    if (exitTarget == null || agent == null) return;
-    if (goingToExit) return;
-
-    // IMPORTANT: free the queue slot NOW so others move forward
-    if (queue != null)
+    public void GoToExit()
     {
-        queue.Leave(this);
-        queue = null; // so OnDestroy won't try again
-    }
+        if (goingToExit) return;
+        goingToExit = true;
 
-    goingToExit = true;
-    agent.SetDestination(exitTarget.position);
-}
+        if (queue != null)
+        {
+            TruckQueue q = queue;
+            queue = null;
+            q.Leave(this); // VERY IMPORTANT → line moves forward
+        }
+
+        if (exitTarget != null && agent != null)
+            agent.SetDestination(exitTarget.position);
+    }
 }
