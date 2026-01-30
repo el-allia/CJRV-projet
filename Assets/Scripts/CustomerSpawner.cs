@@ -2,134 +2,89 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-/// <summary>
-/// Spawns customers based on time of day
-/// Unity 6 compatible version
-/// </summary>
 public class CustomerSpawner : MonoBehaviour
 {
     [Header("References")]
-    [Tooltip("Reference to the TimeManager")]
     public TimeManager timeManager;
-    
-    [Tooltip("Customer prefab to spawn")]
     public GameObject customerPrefab;
-    
-    [Tooltip("Position where customers spawn")]
     public Transform spawnPoint;
 
     [Header("Spawn Settings")]
-    [Tooltip("Maximum number of customers at once")]
-    [Range(1, 20)]
-    public int maxCustomers = 10;
+    [Range(1, 20)] public int maxCustomers = 10;
 
     [Header("Debug")]
-    [Tooltip("Show spawn information in console")]
     public bool showDebugInfo = true;
 
-    // List of currently active customers
-    private List<GameObject> activeCustomers = new List<GameObject>();
-
-    // Current spawn coroutine
+    private readonly List<Customer> activeCustomers = new List<Customer>();
     private Coroutine spawnCoroutine;
-
-    // Is spawning currently active
-    private bool isSpawning = false;
+    private bool isSpawning;
 
     private void Start()
     {
-        // Validate references
         if (!ValidateReferences())
         {
-            Debug.LogError("CustomerSpawner: Missing required references! Please assign them in the Inspector.");
+            Debug.LogError("CustomerSpawner: Missing required references! Assign them in the Inspector.");
             enabled = false;
             return;
         }
 
-        // Subscribe to period changes
         timeManager.OnPeriodChanged += OnPeriodChanged;
-
-        // Start spawning customers
         StartSpawning();
 
         if (showDebugInfo)
-        {
-            Debug.Log($"CustomerSpawner initialized - Max customers: {maxCustomers}");
-        }
+            Debug.Log($"CustomerSpawner ready. Max customers: {maxCustomers}");
     }
 
     private void OnDestroy()
     {
-        // Unsubscribe from events
         if (timeManager != null)
-        {
             timeManager.OnPeriodChanged -= OnPeriodChanged;
-        }
 
-        // Stop spawning
         StopSpawning();
-
-        // Clean up remaining customers
         CleanupAllCustomers();
     }
 
-    /// <summary>
-    /// Validates that all required references are assigned
-    /// </summary>
     private bool ValidateReferences()
     {
         bool valid = true;
 
         if (timeManager == null)
         {
-            Debug.LogError("CustomerSpawner: TimeManager reference is missing!");
+            Debug.LogError("CustomerSpawner: TimeManager missing!");
             valid = false;
         }
 
         if (customerPrefab == null)
         {
-            Debug.LogError("CustomerSpawner: Customer prefab is missing!");
+            Debug.LogError("CustomerSpawner: customerPrefab missing!");
             valid = false;
         }
 
         if (spawnPoint == null)
         {
-            Debug.LogWarning("CustomerSpawner: Spawn point is missing! Using spawner position.");
+            Debug.LogWarning("CustomerSpawner: spawnPoint missing, using spawner position.");
             spawnPoint = transform;
         }
 
         return valid;
     }
 
-    /// <summary>
-    /// Called when the time period changes
-    /// </summary>
     private void OnPeriodChanged(TimeManager.DayPeriod newPeriod)
     {
         if (showDebugInfo)
-        {
-            Debug.Log($"Period changed to {newPeriod} - Restarting spawn loop");
-        }
+            Debug.Log($"Period changed to {newPeriod}. Restarting spawn loop.");
 
-        // Restart spawn loop with new timing
         StopSpawning();
         StartSpawning();
     }
 
-    /// <summary>
-    /// Starts the spawn coroutine
-    /// </summary>
     private void StartSpawning()
     {
         if (isSpawning) return;
-
         isSpawning = true;
         spawnCoroutine = StartCoroutine(SpawnLoop());
     }
 
-    /// <summary>
-    /// Stops the spawn coroutine
-    /// </summary>
     private void StopSpawning()
     {
         if (spawnCoroutine != null)
@@ -140,125 +95,81 @@ public class CustomerSpawner : MonoBehaviour
         isSpawning = false;
     }
 
-    /// <summary>
-    /// Main spawn loop - spawns customers at intervals
-    /// </summary>
     private IEnumerator SpawnLoop()
     {
         while (isSpawning)
         {
-            // Wait before next spawn
+            // Clean nulls (customers destroyed without telling spawner)
+            activeCustomers.RemoveAll(c => c == null);
+
             float spawnDelay = GetSpawnDelay();
             yield return new WaitForSeconds(spawnDelay);
 
-            // Spawn customer if below max
             if (activeCustomers.Count < maxCustomers)
             {
                 SpawnCustomer();
             }
             else if (showDebugInfo)
             {
-                Debug.Log($"Max customers reached ({maxCustomers}), waiting for space...");
+                Debug.Log($"Max customers reached ({maxCustomers}). Waiting...");
             }
         }
     }
 
-    /// <summary>
-    /// Spawns a single customer
-    /// </summary>
     private void SpawnCustomer()
     {
-        if (customerPrefab == null || spawnPoint == null) return;
+        GameObject customerObj = Instantiate(customerPrefab, spawnPoint.position, spawnPoint.rotation);
 
-        // Instantiate customer
-        GameObject customer = Instantiate(
-            customerPrefab,
-            spawnPoint.position,
-            spawnPoint.rotation
-        );
-
-        // Set spawner reference on customer
-        Customer customerScript = customer.GetComponent<Customer>();
-        if (customerScript != null)
+        Customer customer = customerObj.GetComponent<Customer>();
+        if (customer == null)
         {
-            customerScript.SetSpawner(this);
+            Debug.LogError("CustomerSpawner: Spawned prefab has NO Customer component. Destroying it.");
+            Destroy(customerObj);
+            return;
         }
 
-        // Add to active list
+        customer.SetSpawner(this);          // IMPORTANT
         activeCustomers.Add(customer);
 
         if (showDebugInfo)
-        {
-            Debug.Log($"Customer spawned! Active customers: {activeCustomers.Count}/{maxCustomers}");
-        }
+            Debug.Log($"Spawned customer. Active: {activeCustomers.Count}/{maxCustomers}");
     }
 
-    /// <summary>
-    /// Gets spawn delay based on current time period
-    /// </summary>
     private float GetSpawnDelay()
     {
-        TimeManager.DayPeriod currentPeriod = timeManager.GetCurrentPeriod();
+        var currentPeriod = timeManager.GetCurrentPeriod();
 
         return currentPeriod switch
         {
-            TimeManager.DayPeriod.Morning => Random.Range(15f, 20f),    // Slow morning
-            TimeManager.DayPeriod.Noon => Random.Range(5f, 8f),         // Busy lunch rush
-            TimeManager.DayPeriod.Afternoon => Random.Range(12f, 18f),  // Moderate afternoon
+            TimeManager.DayPeriod.Morning => Random.Range(15f, 20f),
+            TimeManager.DayPeriod.Noon => Random.Range(5f, 8f),
+            TimeManager.DayPeriod.Afternoon => Random.Range(12f, 18f),
             _ => 10f
         };
     }
 
-    /// <summary>
-    /// Removes a customer from the active list and destroys it
-    /// </summary>
-    public void RemoveCustomer(GameObject customer)
+    public void RemoveCustomer(Customer customer)
     {
         if (customer == null) return;
+        activeCustomers.Remove(customer);
 
-        if (activeCustomers.Contains(customer))
-        {
-            activeCustomers.Remove(customer);
-            
-            if (showDebugInfo)
-            {
-                Debug.Log($"Customer removed. Active customers: {activeCustomers.Count}/{maxCustomers}");
-            }
-        }
-
-        // Destroy the customer GameObject
-        if (customer != null)
-        {
-            Destroy(customer);
-        }
+        if (showDebugInfo)
+            Debug.Log($"Customer removed. Active: {activeCustomers.Count}/{maxCustomers}");
     }
 
-    /// <summary>
-    /// Cleans up all active customers
-    /// </summary>
     private void CleanupAllCustomers()
     {
-        foreach (GameObject customer in activeCustomers)
+        for (int i = activeCustomers.Count - 1; i >= 0; i--)
         {
-            if (customer != null)
-            {
-                Destroy(customer);
-            }
+            Customer c = activeCustomers[i];
+            if (c != null) Destroy(c.gameObject);
         }
         activeCustomers.Clear();
     }
 
-    /// <summary>
-    /// Get current number of active customers
-    /// </summary>
     public int GetActiveCustomerCount() => activeCustomers.Count;
-
-    /// <summary>
-    /// Check if at max capacity
-    /// </summary>
     public bool IsAtMaxCapacity() => activeCustomers.Count >= maxCustomers;
 
-    // Debug visualization
     private void OnDrawGizmos()
     {
         if (spawnPoint != null)

@@ -23,3 +23,6 @@ Assets/AssetStoreTools*
 .vscode/
 .idea/
 .DS_Store
+# Unity recovery / history
+.history/
+Assets/_Recovery/
