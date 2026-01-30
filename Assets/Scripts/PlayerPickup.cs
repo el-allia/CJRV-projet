@@ -10,16 +10,24 @@ public class PlayerPickup : MonoBehaviour
     [Header("Optional: hand visuals")]
     public GameObject handVisualRoot;
 
+    [Header("Drop")]
+    public float dropRayDistance = 3f;
+    public float surfaceOffset = 0.03f;
+
     GameObject heldObject;
     Rigidbody heldRb;
+    Collider heldCol;
+    Collider playerCol;
+
+    void Awake()
+    {
+        playerCol = GetComponent<Collider>(); // your player capsule collider
+    }
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.E))
-            TryPickup();
-
-        if (Input.GetKeyDown(KeyCode.F))
-            Drop();
+        if (Input.GetKeyDown(KeyCode.E)) TryPickup();
+        if (Input.GetKeyDown(KeyCode.F)) Drop();
     }
 
     void TryPickup()
@@ -37,11 +45,15 @@ public class PlayerPickup : MonoBehaviour
                 heldObject = rb.gameObject;
                 heldRb = rb;
 
-                // STOP physics FIRST
+                heldCol = heldObject.GetComponent<Collider>();
+
+                // Ignore player collision while holding
+                if (heldCol != null && playerCol != null)
+                    Physics.IgnoreCollision(heldCol, playerCol, true);
+
                 heldRb.isKinematic = true;
                 heldRb.useGravity = false;
 
-                // Attach to animated hand
                 heldObject.transform.SetParent(holdPoint, true);
                 heldObject.transform.localPosition = Vector3.zero;
                 heldObject.transform.localRotation = Quaternion.identity;
@@ -54,52 +66,57 @@ public class PlayerPickup : MonoBehaviour
 
     void Drop()
     {
-        if (heldObject == null) return;
+        if (heldObject == null || heldRb == null) return;
         StartCoroutine(DropRoutine());
     }
 
     IEnumerator DropRoutine()
-{
-    heldObject.transform.SetParent(null, true);
-
-    Vector3 dropPos;
-
-    // 1️⃣ Raycast where player looks
-    Ray ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
-
-    if (Physics.Raycast(ray, out RaycastHit hit, 3f))
     {
-        // Place object ON the surface hit (counter, table, floor, etc.)
-        dropPos = hit.point + hit.normal * 0.05f;
-    }
-    else
-    {
-        // Fallback: floor in front
-        dropPos = playerCamera.transform.position +
-                  playerCamera.transform.forward * 1.2f;
+        // Detach
+        heldObject.transform.SetParent(null, true);
 
-        if (Physics.Raycast(dropPos + Vector3.up, Vector3.down, out RaycastHit floorHit, 2f))
+        // Choose a drop position where you are looking (counter/floor)
+        Vector3 dropPos;
+        Ray ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
+
+        if (Physics.Raycast(ray, out RaycastHit hit, dropRayDistance))
         {
-            dropPos = floorHit.point + Vector3.up * 0.05f;
+            // place on the surface
+            dropPos = hit.point + hit.normal * surfaceOffset;
         }
+        else
+        {
+            // fallback: in front of camera
+            dropPos = playerCamera.transform.position + playerCamera.transform.forward * 1.2f;
+        }
+
+        heldObject.transform.position = dropPos;
+
+        // Wait 1 frame to fully detach from hand animation
+        yield return null;
+
+        // Enable physics briefly so we can detect the first collision
+        heldRb.isKinematic = false;
+        heldRb.useGravity = true;
+        heldRb.linearVelocity = Vector3.zero;
+        heldRb.angularVelocity = Vector3.zero;
+
+        // Arm "freeze on first collision"
+        var freezer = heldObject.GetComponent<FreezeOnFirstCollision>();
+        if (freezer == null) freezer = heldObject.AddComponent<FreezeOnFirstCollision>();
+        freezer.Arm();
+
+        // Re-enable collision with player AFTER a short moment
+        // (prevents object exploding out of the player capsule)
+        yield return new WaitForSeconds(0.15f);
+        if (heldCol != null && playerCol != null)
+            Physics.IgnoreCollision(heldCol, playerCol, false);
+
+        heldObject = null;
+        heldRb = null;
+        heldCol = null;
+
+        if (handVisualRoot != null)
+            handVisualRoot.SetActive(false);
     }
-
-    // 2️⃣ Move object BEFORE physics
-    heldObject.transform.position = dropPos;
-
-    yield return null;
-
-    // 3️⃣ Enable physics safely
-    heldRb.isKinematic = false;
-    heldRb.useGravity = true;
-    heldRb.linearVelocity = Vector3.zero;
-    heldRb.angularVelocity = Vector3.zero;
-
-    heldObject = null;
-    heldRb = null;
-
-    if (handVisualRoot != null)
-        handVisualRoot.SetActive(false);
-}
-
 }
