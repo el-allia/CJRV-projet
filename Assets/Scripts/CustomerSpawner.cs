@@ -69,14 +69,15 @@ public class CustomerSpawner : MonoBehaviour
         return valid;
     }
 
-    private void OnPeriodChanged(TimeManager.DayPeriod newPeriod)
-    {
-        if (showDebugInfo)
-            Debug.Log($"Period changed to {newPeriod}. Restarting spawn loop.");
+   private void OnPeriodChanged(TimeManager.DayPeriod newPeriod)
+{
+    if (showDebugInfo)
+        Debug.Log($"Period changed to {newPeriod}. Spawn rate updated.");
 
-        StopSpawning();
-        StartSpawning();
-    }
+    // DO NOTHING here
+    // The loop already runs forever and will use the new delay automatically
+}
+
 
     private void StartSpawning()
     {
@@ -143,14 +144,21 @@ if (c != null)
         };
     }
 
-    public void RemoveCustomer(Customer customer)
-    {
-        if (customer == null) return;
-        activeCustomers.Remove(customer);
+public void RemoveCustomer(Customer customer)
+{
+    if (customer == null) return;
 
-        if (showDebugInfo)
-            Debug.Log($"Customer removed. Active: {activeCustomers.Count}/{maxCustomers}");
+    activeCustomers.Remove(customer);
+
+    if (showDebugInfo)
+        Debug.Log($"Customer removed. Active: {activeCustomers.Count}/{maxCustomers}");
+
+    // INSTANTLY spawn next if space available
+    if (activeCustomers.Count < maxCustomers)
+    {
+        SpawnCustomer();
     }
+}
 
     private void CleanupAllCustomers()
     {
