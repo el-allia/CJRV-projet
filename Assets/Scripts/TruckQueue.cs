@@ -1,76 +1,76 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.AI;
 
 public class TruckQueue : MonoBehaviour
 {
-    [Header("Queue points")]
-    public Transform frontPoint;   // TruckTarget (where the first person stands)
-    public Transform exitPoint;    // ExitTarget (where served person goes)
+    [Header("Queue points (Front -> Back)")]
+    [SerializeField] private List<Transform> queuePoints = new List<Transform>();
+    [SerializeField] private bool autoCollectChildrenIfEmpty = true;
 
-    [Header("Queue settings")]
-    public float spacing = 1.2f;   // distance between people
-    public int maxCount = 30;
+    [Header("If more customers than points")]
+    [SerializeField] private float overflowSpacing = 1.2f;
+    [SerializeField] private Vector3 overflowDirectionLocal = Vector3.back; // local direction from last point
 
-    private readonly List<ClientQueueMember> members = new();
+    private readonly List<ClientQueueMember> members = new List<ClientQueueMember>();
+
+    private void Awake()
+    {
+        if (autoCollectChildrenIfEmpty && (queuePoints == null || queuePoints.Count == 0))
+        {
+            queuePoints = new List<Transform>();
+            for (int i = 0; i < transform.childCount; i++)
+                queuePoints.Add(transform.GetChild(i));
+        }
+    }
 
     public void Join(ClientQueueMember m)
     {
         if (m == null) return;
         if (members.Contains(m)) return;
 
-        if (members.Count >= maxCount)
-        {
-            // Queue is full: you can destroy client or send them away
-            // Destroy(m.gameObject);
-            return;
-        }
-
         members.Add(m);
-        RecomputeTargets();
+        Rebuild();
     }
 
     public void Leave(ClientQueueMember m)
     {
         if (m == null) return;
         if (members.Remove(m))
-            RecomputeTargets();
+            Rebuild();
     }
 
-    public void ServeFront()
+    public ClientQueueMember GetFrontMember()
     {
-        if (members.Count == 0) return;
-
-        var first = members[0];
-        Leave(first); // removes them and makes everyone move up
-
-        if (exitPoint != null)
-            first.GoToExit();
-
+        if (members.Count == 0) return null;
+        return members[0];
     }
 
-    private void RecomputeTargets()
+    public bool IsFront(ClientQueueMember m)
     {
-        if (frontPoint == null) return;
+        return members.Count > 0 && members[0] == m;
+    }
 
-        Vector3 dirBack = -frontPoint.forward; // line goes behind the truck
+    private Vector3 GetSlotPosition(int index)
+    {
+        if (queuePoints == null || queuePoints.Count == 0)
+            return transform.position;
 
+        if (index < queuePoints.Count)
+            return queuePoints[index].position;
+
+        // Overflow behind last point
+        Transform last = queuePoints[queuePoints.Count - 1];
+        Vector3 dirWorld = last.TransformDirection(overflowDirectionLocal).normalized;
+        int extra = index - (queuePoints.Count - 1);
+        return last.position + dirWorld * overflowSpacing * extra;
+    }
+
+    private void Rebuild()
+    {
         for (int i = 0; i < members.Count; i++)
         {
-            Vector3 rawPos = frontPoint.position + dirBack * spacing * i;
-
-            // Snap each spot onto the NavMesh so agents don't get stuck
-            if (NavMesh.SamplePosition(rawPos, out NavMeshHit hit, 2f, NavMesh.AllAreas))
-                members[i].SetQueueDestination(hit.position);
-            else
-                members[i].SetQueueDestination(rawPos);
+            if (members[i] == null) continue;
+            members[i].SetQueueDestination(GetSlotPosition(i));
         }
-    }
-
-    // Optional: quick test key (press Space to serve first client)
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Space))
-            ServeFront();
     }
 }

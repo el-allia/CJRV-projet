@@ -48,16 +48,19 @@ public class ClientQueueMember : MonoBehaviour
         if (agent != null) agent.SetDestination(p);
     }
 
-    public void GoToExit()
-    {
-        if (exitTarget == null || agent == null) return;
+public void GoToExit()
+{
+    if (exitTarget == null || agent == null) return;
+    if (goingToExit) return;
 
-        goingToExit = true;
-        agent.SetDestination(exitTarget.position);
+    // IMPORTANT: free the queue slot NOW so others move forward
+    if (queue != null)
+    {
+        queue.Leave(this);
+        queue = null; // so OnDestroy won't try again
     }
 
-    void OnDestroy()
-    {
-        if (queue != null) queue.Leave(this);
-    }
+    goingToExit = true;
+    agent.SetDestination(exitTarget.position);
+}
 }
