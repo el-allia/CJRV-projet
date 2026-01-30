@@ -24,31 +24,52 @@ public class PlayerPickup : MonoBehaviour
         }
     }
 
+    void PickObject(GameObject obj)
+{
+    heldObject = obj;
+    heldRb = heldObject.GetComponent<Rigidbody>();
+
+    heldRb.isKinematic = true;
+    heldRb.useGravity = false;
+
+    heldRb.linearVelocity = Vector3.zero;
+    heldRb.angularVelocity = Vector3.zero;
+
+    heldObject.transform.SetParent(holdPoint);
+    heldObject.transform.localPosition = Vector3.zero;
+}
+
     void TryPickup()
+{
+    if (heldObject != null) return;
+
+    Ray ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
+    RaycastHit hit;
+
+    if (Physics.Raycast(ray, out hit, pickupDistance))
     {
-        if (heldObject != null) return;
-
-        Ray ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
-        RaycastHit hit;
-
-        if (Physics.Raycast(ray, out hit, pickupDistance))
+        // CASE 1: Ingredient dispenser (tomato plate)
+        IngredientDispenser dispenser = hit.collider.GetComponent<IngredientDispenser>();
+        if (dispenser != null)
         {
-            if (hit.collider.CompareTag("Pickup"))
-            {
-                heldObject = hit.collider.gameObject;
-                heldRb = heldObject.GetComponent<Rigidbody>();
+            GameObject newItem = Instantiate(
+                dispenser.ingredientPrefab,
+                dispenser.spawnPoint.position,
+                dispenser.spawnPoint.rotation
+            );
 
-                heldRb.isKinematic = true;
-                heldRb.useGravity = false;
+            PickObject(newItem);
+            return;
+        }
 
-                heldRb.linearVelocity = Vector3.zero;
-                heldRb.angularVelocity = Vector3.zero;
-
-                heldObject.transform.SetParent(holdPoint);
-                heldObject.transform.localPosition = Vector3.zero;
-            }
+        // CASE 2: Normal pickup
+        if (hit.collider.CompareTag("Pickup"))
+        {
+            PickObject(hit.collider.gameObject);
         }
     }
+}
+
 
     void Drop()
     {
