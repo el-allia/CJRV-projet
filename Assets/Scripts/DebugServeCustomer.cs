@@ -12,7 +12,7 @@ public class DebugServeCustomer : MonoBehaviour
     private void Update()
     {
         // Press F to serve the first customer in queue
-        if (Input.GetKeyDown(KeyCode.F))
+        if (Input.GetKeyDown(KeyCode.A))
         {
             ServeFrontCustomer();
         }
