@@ -188,6 +188,7 @@ public class PlayerPickup : MonoBehaviour
                tag == "CookedMeat" ||
                tag == "FilledCup" ||
                tag == "EmptyCup" ||
+               tag == "ReadyMeal" ||
                tag == "Garantita";
     }
 
