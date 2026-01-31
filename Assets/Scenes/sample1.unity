@@ -3749,10 +3749,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 703653759}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6990549435c65e846a754f6c16fabc5e, type: 3}
+  m_Script: {fileID: 11500000, guid: 54916892f88f3d54895cd04471f71446, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CoffeeMachine
-  filledCupPrefab: {fileID: 7381447560655109554, guid: bf76b9c0ba5eda746b7705f3f54ead99, type: 3}
+  m_EditorClassIdentifier: Assembly-CSharp::SpawnOnClick
+  breadPrefab: {fileID: 7381447560655109554, guid: bf76b9c0ba5eda746b7705f3f54ead99, type: 3}
+  spawnPoint: {fileID: 448331083}
 --- !u!1001 &710086414
 PrefabInstance:
   m_ObjectHideFlags: 0
