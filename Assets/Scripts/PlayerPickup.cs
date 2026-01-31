@@ -27,25 +27,34 @@ public class PlayerPickup : MonoBehaviour
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.E))
-        {
+            HandleE();
 
-            if (heldObject != null)
-            {
-                PattyCook pc = heldObject.GetComponent<PattyCook>();
-                if (pc != null)
-                {
-                    pc.Flip();
-                    return; // do NOT pickup
-                }
-            }
+        if (Input.GetKeyDown(KeyCode.R))
+            TryAssemble();
 
-            // Otherwise try to pickup
-            TryPickup();
-        }
-
-        if (Input.GetKeyDown(KeyCode.F)) Drop();
+        if (Input.GetKeyDown(KeyCode.F))
+            Drop();
     }
 
+    // ---------- E KEY ----------
+    void HandleE()
+    {
+        if (heldObject != null)
+        {
+            // Flip patty
+            PattyCook pc = heldObject.GetComponent<PattyCook>();
+            if (pc != null)
+            {
+                pc.Flip();
+                return;
+            }
+        }
+
+        // Otherwise pickup
+        TryPickup();
+    }
+
+    // ---------- PICKUP ----------
     void TryPickup()
     {
         if (heldObject != null) return;
@@ -60,6 +69,7 @@ public class PlayerPickup : MonoBehaviour
             {
                 heldObject = rb.gameObject;
 
+                // Raw patty infinite spawn
                 if (heldObject.CompareTag("RawMeat"))
                 {
                     RawPattySpawner spawner = FindObjectOfType<RawPattySpawner>();
@@ -86,47 +96,35 @@ public class PlayerPickup : MonoBehaviour
         }
     }
 
-    bool IsPickupTag(string tag)
+    // ---------- R KEY (ASSEMBLE) ----------
+    void TryAssemble()
     {
-        return tag == "Pickup" ||
-               tag == "Bread" ||
-               tag == "CutBread" ||
-               tag == "RawMeat" ||
-               tag == "CookedMeat" ||
-               tag == "FilledCup" ||
-               tag == "EmptyCup";
+        if (heldObject == null) return;
+        if (!heldObject.CompareTag("Sliceable")) return;
+
+        BreadAssembly[] breads = FindObjectsOfType<BreadAssembly>();
+
+        foreach (var bread in breads)
+        {
+            float dist = Vector3.Distance(transform.position, bread.transform.position);
+
+            if (dist < 2f)
+            {
+                bread.Fill(heldObject);
+
+                heldObject = null;
+                heldRb = null;
+                heldCol = null;
+
+                if (handVisualRoot != null)
+                    handVisualRoot.SetActive(false);
+
+                return;
+            }
+        }
     }
 
-    public void ForceHold(GameObject obj)
-    {
-        if (heldObject != null) return;
-
-        heldObject = obj;
-        heldRb = obj.GetComponent<Rigidbody>();
-        heldCol = obj.GetComponent<Collider>();
-
-        if (heldRb == null) heldRb = obj.AddComponent<Rigidbody>();
-        if (heldCol == null) heldCol = obj.AddComponent<BoxCollider>();
-
-        if (heldCol != null && playerCol != null)
-            Physics.IgnoreCollision(heldCol, playerCol, true);
-
-        heldRb.isKinematic = true;
-        heldRb.useGravity = false;
-
-        obj.transform.SetParent(holdPoint, true);
-        obj.transform.localPosition = Vector3.zero;
-        obj.transform.localRotation = Quaternion.identity;
-
-        if (handVisualRoot != null)
-            handVisualRoot.SetActive(true);
-    }
-
-    public GameObject CurrentHeldObject()
-    {
-        return heldObject;
-    }
-
+    // ---------- DROP ----------
     void Drop()
     {
         if (heldObject == null || heldRb == null) return;
@@ -169,4 +167,45 @@ public class PlayerPickup : MonoBehaviour
         if (handVisualRoot != null)
             handVisualRoot.SetActive(false);
     }
+
+    bool IsPickupTag(string tag)
+    {
+        return tag == "Pickup" ||
+               tag == "Bread" ||
+               tag == "CutBread" ||
+               tag == "RawMeat" ||
+               tag == "CookedMeat" ||
+               tag == "FilledCup" ||
+               tag == "EmptyCup" ||
+               tag == "Garantita";
+    }
+
+    public GameObject CurrentHeldObject()
+    {
+        return heldObject;
+    }
+    public void ForceHold(GameObject obj)
+{
+    if (heldObject != null) return;
+
+    heldObject = obj;
+    heldRb = obj.GetComponent<Rigidbody>();
+    heldCol = obj.GetComponent<Collider>();
+
+    if (heldRb == null) heldRb = obj.AddComponent<Rigidbody>();
+    if (heldCol == null) heldCol = obj.AddComponent<BoxCollider>();
+
+    if (heldCol != null && playerCol != null)
+        Physics.IgnoreCollision(heldCol, playerCol, true);
+
+    heldRb.isKinematic = true;
+    heldRb.useGravity = false;
+
+    obj.transform.SetParent(holdPoint, true);
+    obj.transform.localPosition = Vector3.zero;
+    obj.transform.localRotation = Quaternion.identity;
+
+    if (handVisualRoot != null)
+        handVisualRoot.SetActive(true);
+}
 }

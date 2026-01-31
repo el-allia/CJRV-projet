@@ -7,6 +7,7 @@ public class SlicerInteraction : MonoBehaviour
 
     public float interactDistance = 2f;
     public GameObject guarantitaPrefab;
+    public GameObject sandwichPrefab;   // NEW
 
     void Update()
     {
@@ -18,14 +19,11 @@ public class SlicerInteraction : MonoBehaviour
 
     void TrySlice()
     {
-        // 1. Vérifier qu'on tient un objet
         GameObject heldObject = playerPickup.CurrentHeldObject();
         if (heldObject == null) return;
 
-        // 2. Vérifier que c'est le cheese-slicer
         if (heldObject.GetComponent<SlicerTool>() == null) return;
 
-        // 3. Raycast depuis la caméra (FPS-style)
         Ray ray = new Ray(
             playerCamera.transform.position,
             playerCamera.transform.forward
@@ -33,12 +31,33 @@ public class SlicerInteraction : MonoBehaviour
 
         if (Physics.Raycast(ray, out RaycastHit hit, interactDistance))
         {
-            // 4. Vérifier que c'est sliceable
             if (hit.collider.CompareTag("Sliceable"))
             {
-                SpawnOnSlicer(heldObject);
+                HandleSliceOrAssemble(heldObject);
             }
         }
+    }
+
+    void HandleSliceOrAssemble(GameObject slicer)
+    {
+        // If bread is already placed on board → ASSEMBLE
+        if (AssemblyState.breadReady && AssemblyState.currentBread != null)
+        {
+            // Remove bread
+            Destroy(AssemblyState.currentBread);
+
+            // Spawn sandwich directly in player hand
+            GameObject sandwich = Instantiate(sandwichPrefab);
+            playerPickup.ForceHold(sandwich);
+
+            AssemblyState.breadReady = false;
+            AssemblyState.currentBread = null;
+
+            return;
+        }
+
+        // Otherwise just create normal slice on slicer
+        SpawnOnSlicer(slicer);
     }
 
     void SpawnOnSlicer(GameObject slicer)

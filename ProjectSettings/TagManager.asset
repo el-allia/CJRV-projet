@@ -13,6 +13,7 @@ TagManager:
   - EmptyCup
   - Sliceable
   - Grill
+  - ReadyMeal
   layers:
   - Default
   - TransparentFX

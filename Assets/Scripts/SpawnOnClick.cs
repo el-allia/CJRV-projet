@@ -2,11 +2,14 @@ using UnityEngine;
 
 public class SpawnOnClick : MonoBehaviour
 {
-    public GameObject cutBreadPrefab;
-    public Transform spawnPoint; // the cutting board
+    public GameObject breadPrefab;
+    public Transform spawnPoint;
 
     void OnMouseDown()
     {
-        Instantiate(cutBreadPrefab, spawnPoint.position, spawnPoint.rotation);
+        GameObject bread = Instantiate(breadPrefab, spawnPoint.position, spawnPoint.rotation);
+
+        AssemblyState.breadReady = true;
+        AssemblyState.currentBread = bread;
     }
 }
