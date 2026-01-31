@@ -11,6 +11,8 @@ TagManager:
   - CookedMeat
   - FilledCup
   - EmptyCup
+  - Sliceable
+  - Grill
   layers:
   - Default
   - TransparentFX

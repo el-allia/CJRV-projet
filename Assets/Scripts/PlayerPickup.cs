@@ -28,7 +28,7 @@ public class PlayerPickup : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.E))
         {
-            // If holding something → try to flip it
+
             if (heldObject != null)
             {
                 PattyCook pc = heldObject.GetComponent<PattyCook>();
@@ -59,6 +59,14 @@ public class PlayerPickup : MonoBehaviour
             if (rb != null && IsPickupTag(hit.collider.tag))
             {
                 heldObject = rb.gameObject;
+
+                if (heldObject.CompareTag("RawMeat"))
+                {
+                    RawPattySpawner spawner = FindObjectOfType<RawPattySpawner>();
+                    if (spawner != null)
+                        spawner.PattyTaken();
+                }
+
                 heldRb = rb;
                 heldCol = heldObject.GetComponent<Collider>();
 
