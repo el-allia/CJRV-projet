@@ -5,6 +5,12 @@ TagManager:
   serializedVersion: 3
   tags:
   - Pickup
+  - Bread
+  - CutBread
+  - RawMeat
+  - CookedMeat
+  - FilledCup
+  - EmptyCup
   layers:
   - Default
   - TransparentFX

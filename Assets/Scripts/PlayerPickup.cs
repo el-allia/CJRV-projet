@@ -40,7 +40,8 @@ public class PlayerPickup : MonoBehaviour
         {
             Rigidbody rb = hit.collider.GetComponent<Rigidbody>();
 
-            if (rb != null && hit.collider.CompareTag("Pickup"))
+            if (rb != null && IsPickupTag(hit.collider.tag))
+
             {
                 heldObject = rb.gameObject;
                 heldRb = rb;
@@ -63,6 +64,46 @@ public class PlayerPickup : MonoBehaviour
             }
         }
     }
+    bool IsPickupTag(string tag)
+{
+    return tag == "Pickup" ||
+           tag == "Bread" ||
+           tag == "CutBread" ||
+           tag == "RawMeat" ||
+           tag == "CookedMeat" ||
+           tag == "FilledCup" ||
+           tag == "EmptyCup";
+}
+
+public void ForceHold(GameObject obj)
+{
+    if (heldObject != null) return;
+
+    heldObject = obj;
+    heldRb = obj.GetComponent<Rigidbody>();
+    heldCol = obj.GetComponent<Collider>();
+
+    if (heldRb == null) heldRb = obj.AddComponent<Rigidbody>();
+    if (heldCol == null) heldCol = obj.AddComponent<BoxCollider>();
+
+    // Ignore player collision
+    if (heldCol != null && playerCol != null)
+        Physics.IgnoreCollision(heldCol, playerCol, true);
+
+    heldRb.isKinematic = true;
+    heldRb.useGravity = false;
+
+    obj.transform.SetParent(holdPoint, true);
+    obj.transform.localPosition = Vector3.zero;
+    obj.transform.localRotation = Quaternion.identity;
+
+    if (handVisualRoot != null)
+        handVisualRoot.SetActive(true);
+}
+public GameObject CurrentHeldObject()
+{
+    return heldObject;
+}
 
     void Drop()
     {
