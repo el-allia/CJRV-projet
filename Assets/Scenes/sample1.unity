@@ -3740,6 +3740,19 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 8fc80455b226c1b41a8d3bbf154bba6f, type: 3}
   m_PrefabInstance: {fileID: 1567991518}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &703653765
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 703653759}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6990549435c65e846a754f6c16fabc5e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CoffeeMachine
+  filledCupPrefab: {fileID: 7381447560655109554, guid: bf76b9c0ba5eda746b7705f3f54ead99, type: 3}
 --- !u!1001 &710086414
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -11982,6 +11995,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 8fc80455b226c1b41a8d3bbf154bba6f, type: 3}
       insertIndex: -1
       addedObject: {fileID: 703653763}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 8fc80455b226c1b41a8d3bbf154bba6f, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 703653765}
   m_SourcePrefab: {fileID: 100100000, guid: 8fc80455b226c1b41a8d3bbf154bba6f, type: 3}
 --- !u!1 &1569157241
 GameObject:

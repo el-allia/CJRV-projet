@@ -49,7 +49,18 @@ public class PlayerPickup : MonoBehaviour
                 return;
             }
         }
+        Ray ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
 
+        if (Physics.Raycast(ray, out RaycastHit hit, pickupDistance))
+        {
+            CoffeeMachineClick machine = hit.collider.GetComponent<CoffeeMachineClick>();
+            if (machine != null)
+            {
+                GameObject cup = Instantiate(machine.coffeeCupPrefab);
+                ReplaceHold(cup);
+                return;
+            }
+        }
         // Otherwise pickup
         TryPickup();
     }
@@ -207,5 +218,15 @@ public class PlayerPickup : MonoBehaviour
 
     if (handVisualRoot != null)
         handVisualRoot.SetActive(true);
+}
+public void ReplaceHold(GameObject newObj)
+{
+    // Drop whatever is in hand instantly
+    if (heldObject != null)
+    {
+        Destroy(heldObject);
+    }
+
+    ForceHold(newObj);
 }
 }
